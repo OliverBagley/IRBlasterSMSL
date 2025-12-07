@@ -46,38 +46,6 @@ web_server:
       name: "SMSL Remote"
       sorting_weight: 20
 
-# -------------------------------
-# I2C + BME680
-# -------------------------------
-i2c:
-  sda: GPIO12
-  scl: GPIO14
-  scan: false 
-
-sensor:
-  - platform: bme680
-    address: 0x77
-
-    temperature:
-      name: "Temperature"
-      web_server:
-        sorting_group_id: env_group
-
-    pressure:
-      name: "Pressure"
-      web_server:
-        sorting_group_id: env_group
-
-    humidity:
-      name: "Humidity"
-      web_server:
-        sorting_group_id: env_group
-
-    gas_resistance:
-      name: "Gas Resistance"
-      web_server:
-        sorting_group_id: env_group
-
 remote_transmitter:
   id: ir_tx
   pin: GPIO4
