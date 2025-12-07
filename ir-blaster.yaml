@@ -1,0 +1,195 @@
+substitutions:
+  smsl_addr: "0x3412"
+  ir_power: "0xF801"
+  ir_vol_up: "0xF802"
+  ir_vol_down: "0xF806"
+  ir_left: "0xF803"
+  ir_right: "0xF805"
+  ir_ok: "0xF804"
+  ir_input: "0xF807"
+  ir_eq: "0xF808"
+  ir_mute: "0xF809"
+
+esphome:
+  name: ir-blaster
+  friendly_name: IR_Blaster
+  comment: EQ0 OFF - 1–7 = Bass, Super Bass, Heavy Rock, Lite Rock, Jazz, Country, Rap
+
+esp8266:
+  board: esp01_1m
+
+logger:
+  level: WARN
+
+api:
+  encryption:
+    key: !secret api_key
+
+ota:
+  - platform: esphome
+    password: !secret ota_password
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+captive_portal:
+
+web_server:
+  version: 3
+  local: true
+  sorting_groups:
+    - id: env_group
+      name: "Environment"
+      sorting_weight: 10
+    - id: smsl_group
+      name: "SMSL Remote"
+      sorting_weight: 20
+
+# -------------------------------
+# I2C + BME680
+# -------------------------------
+i2c:
+  sda: GPIO12
+  scl: GPIO14
+  scan: false 
+
+sensor:
+  - platform: bme680
+    address: 0x77
+
+    temperature:
+      name: "Temperature"
+      web_server:
+        sorting_group_id: env_group
+
+    pressure:
+      name: "Pressure"
+      web_server:
+        sorting_group_id: env_group
+
+    humidity:
+      name: "Humidity"
+      web_server:
+        sorting_group_id: env_group
+
+    gas_resistance:
+      name: "Gas Resistance"
+      web_server:
+        sorting_group_id: env_group
+
+remote_transmitter:
+  id: ir_tx
+  pin: GPIO4
+  carrier_duty_percent: 50%
+
+button:
+  - platform: template
+    name: "SMSL Power"
+    icon: mdi:power
+    web_server:
+      sorting_group_id: smsl_group
+    on_press:
+      - remote_transmitter.transmit_nec:
+          address: ${smsl_addr}
+          command: ${ir_power}
+
+  - platform: template
+    name: "SMSL Volume Up"
+    icon: mdi:volume-plus
+    web_server:
+      sorting_group_id: smsl_group
+    on_press:
+      - remote_transmitter.transmit_nec:
+          address: ${smsl_addr}
+          command: ${ir_vol_up}
+
+  - platform: template
+    name: "SMSL Volume Down"
+    icon: mdi:volume-minus
+    web_server:
+      sorting_group_id: smsl_group
+    on_press:
+      - remote_transmitter.transmit_nec:
+          address: ${smsl_addr}
+          command: ${ir_vol_down}
+
+  - platform: template
+    name: "SMSL Up"
+    icon: mdi:chevron-up
+    web_server:
+      sorting_group_id: smsl_group
+    on_press:
+      - remote_transmitter.transmit_nec:
+          address: ${smsl_addr}
+          command: ${ir_vol_up}
+
+  - platform: template
+    name: "SMSL Down"
+    icon: mdi:chevron-down
+    web_server:
+      sorting_group_id: smsl_group
+    on_press:
+      - remote_transmitter.transmit_nec:
+          address: ${smsl_addr}
+          command: ${ir_vol_down}
+
+  - platform: template
+    name: "SMSL Left"
+    icon: mdi:arrow-left
+    web_server:
+      sorting_group_id: smsl_group
+    on_press:
+      - remote_transmitter.transmit_nec:
+          address: ${smsl_addr}
+          command: ${ir_left}
+
+  - platform: template
+    name: "SMSL Right"
+    icon: mdi:arrow-right
+    web_server:
+      sorting_group_id: smsl_group
+    on_press:
+      - remote_transmitter.transmit_nec:
+          address: ${smsl_addr}
+          command: ${ir_right}
+
+  - platform: template
+    name: "SMSL OK"
+    icon: mdi:circle
+    web_server:
+      sorting_group_id: smsl_group
+    on_press:
+      - remote_transmitter.transmit_nec:
+          address: ${smsl_addr}
+          command: ${ir_ok}
+
+  - platform: template
+    name: "SMSL Input"
+    icon: mdi:video-input-hdmi
+    web_server:
+      sorting_group_id: smsl_group
+    on_press:
+      - remote_transmitter.transmit_nec:
+          address: ${smsl_addr}
+          command: ${ir_input}
+
+  - platform: template
+    name: "SMSL EQ"
+    icon: mdi:equalizer
+    web_server:
+      sorting_group_id: smsl_group
+    on_press:
+      - remote_transmitter.transmit_nec:
+          address: ${smsl_addr}
+          command: ${ir_eq}
+
+  - platform: template
+    name: "SMSL Mute"
+    icon: mdi:volume-mute
+    web_server:
+      sorting_group_id: smsl_group
+    on_press:
+      - remote_transmitter.transmit_nec:
+          address: ${smsl_addr}
+          command: ${ir_mute}
